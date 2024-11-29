@@ -1,0 +1,31 @@
+.cartContainer {
+  padding: 20px;
+}
+
+.cartList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.cartList li {
+  margin-bottom: 10px;
+}
+
+.cartItem {
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+.button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
