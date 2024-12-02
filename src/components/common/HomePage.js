@@ -28,7 +28,7 @@ function HomePage() {
         </p>
         {/* Actionable CTA Buttons */}
         <div style={{ marginTop: '20px' }}>
-          <Link to="/browse-food-offers">
+          <Link to="/login">
             <button className="button" style={{ padding: '10px 20px', fontSize: '16px'}}>
               Log In
             </button>
@@ -80,7 +80,7 @@ function HomePage() {
       </section>
 
       {/* Merchant Portal (Visible for merchants only) */}
-      {role === 'merchant' && (
+      {/* {role === 'merchant' && (
         <section style={{ padding: '30px 20px', textAlign: 'center' }}>
           <h2>Merchant Portal</h2>
           <Link to="/merchant-dashboard">
@@ -89,7 +89,7 @@ function HomePage() {
             </button>
           </Link>
         </section>
-      )}
+      )} */}
 
       {/* Footer */}
       <footer style={{ backgroundColor: '#00796B', color: '#fff', padding: '20px 0', textAlign: 'center' }}>
