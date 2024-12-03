@@ -10,6 +10,10 @@ function ManageOffers() {
   const [merchantId, setMerchantId] = useState(null);  // State to store merchantId
   const auth = getAuth();
 
+  function handleUpdate(offerId, data) {
+    console.log("handleUpdate called", offerId, data)
+  }
+
   // Handle authentication state change
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -36,7 +40,7 @@ function ManageOffers() {
     let isMounted = true;  // Flag to track component mount status
 
     const unsubscribe = onSnapshot(
-      collection(db, 'merchants', merchantId, 'foodOffers'),
+      collection(db, 'foodOffers'),
       (snapshot) => {
         if (isMounted) {  // Only update state if component is still mounted
           const fetchedOffers = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));

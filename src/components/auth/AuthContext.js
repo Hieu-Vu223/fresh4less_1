@@ -38,11 +38,12 @@ export const AuthProvider = ({ children }) => {
 
         try {
           // Fetch role, customerId, and merchantId from Firestore for the logged-in user
-          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDocRef = doc(db, 'users', currentUser.uid); // FIXED: Removed extra 'a'
           const userDoc = await getDoc(userDocRef);
 
           if (userDoc.exists()) {
             const userData = userDoc.data();
+               console.log("Fetched user data:", userData);  // Add this log to see the document data
             const userRole = userData.role; // Fetch the user's role
             const customerId = userData.customerId || null; // Fetch the customer's ID (if available)
             const merchantId = userData.merchantId || null; // Fetch the merchant's ID (if available)

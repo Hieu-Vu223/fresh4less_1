@@ -38,7 +38,7 @@ function MerchantDashboard() {
     }
 
     try {
-      await addDoc(collection(db, 'merchants', user.uid, 'foodOffers'), {
+      await addDoc(collection(db, 'foodOffers'), {
         name: offerName,
         price: parseFloat(offerPrice),
         distance: parseFloat(offerDistance),
