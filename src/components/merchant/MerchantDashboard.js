@@ -1,7 +1,7 @@
-// src/components/MerchantDashboard.js
 import React, { useState } from 'react';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
+import { getAuth } from 'firebase/auth';
 import '../../styles/MerchantDashboard.css';
 import '../../styles/Button.css';
 
@@ -9,16 +9,15 @@ function MerchantDashboard() {
   const [offerName, setOfferName] = useState('');
   const [offerPrice, setOfferPrice] = useState('');
   const [offerDistance, setOfferDistance] = useState('');
-  const [offerQuantity, setOfferQuantity] = useState(1); // Add quantity with default value 1
+  const [offerQuantity, setOfferQuantity] = useState(1);
   const [offerStatus, setOfferStatus] = useState('available');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [newSuccessMessage, setNewSuccessMessage] = useState('');  // Renamed to avoid conflict
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Function to create a new offer
   const handleCreateOffer = async (e) => {
     e.preventDefault();
 
-    // Validation for required fields and positive values
+    // Check if all fields are valid
     if (!offerName || !offerPrice || !offerDistance || !offerQuantity) {
       setErrorMessage("All fields are required and must be greater than zero.");
       return;
@@ -29,22 +28,32 @@ function MerchantDashboard() {
       return;
     }
 
+    // Get the currently authenticated user's UID
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      setErrorMessage("You must be logged in to create an offer.");
+      return;
+    }
+
     try {
-      await addDoc(collection(db, 'foodOffers'), {
+      await addDoc(collection(db, 'merchants', user.uid, 'foodOffers'), {
         name: offerName,
         price: parseFloat(offerPrice),
         distance: parseFloat(offerDistance),
-        quantity: parseInt(offerQuantity), // Add quantity
+        quantity: parseInt(offerQuantity),
         status: offerStatus,
         createdAt: new Date(),
+        merchantId: user.uid
       });
 
-      setSuccessMessage("Offer created successfully!");
+      setNewSuccessMessage("Offer created successfully!"); // Updated the success message variable
       setErrorMessage('');
       setOfferName('');
       setOfferPrice('');
       setOfferDistance('');
-      setOfferQuantity(1); // Reset quantity
+      setOfferQuantity(1);
       setOfferStatus('available');
     } catch (error) {
       console.error("Error creating offer:", error);
@@ -123,7 +132,7 @@ function MerchantDashboard() {
         <button type="submit" className="button">Create Offer</button>
       </form>
 
-      {successMessage && <p className="success-message">{successMessage}</p>}
+      {newSuccessMessage && <p className="success-message">{newSuccessMessage}</p>}  {/* Use the renamed state */}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
     </div>
   );

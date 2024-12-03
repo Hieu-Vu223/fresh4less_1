@@ -1,4 +1,3 @@
-// src/components/common/Signup.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
@@ -24,27 +23,42 @@ function Signup() {
       const user = userCredential.user;
 
       // Step 2: Add user data to Firestore with `createdAt` field
-      await setDoc(doc(db, 'users', user.uid), {
+      const userData = {
         uid: user.uid,
         fullName: fullName,
         email: email,
         role: role, // Dynamic role based on user selection
         status: 'active', // Default status
         createdAt: serverTimestamp(), // Timestamp for when the user is created
-      });
+      };
 
-      // Step 3: Send verification email
+      // For merchants, add merchantID and any additional merchant data
+      if (role === 'merchant') {
+        userData.merchantID = user.uid; // Set the merchantID as the user's UID
+      } 
+      // For customers, add customer-specific data like cart and order history
+      else if (role === 'customer') {
+        userData.customerID = user.uid; // Set the customerID as the user's UID
+        // Initialize empty cart and order history for customers
+        userData.cart = []; // Empty cart array
+        userData.orderHistory = []; // Empty order history array
+      }
+
+      // Step 3: Store user data in Firestore
+      await setDoc(doc(db, 'users', user.uid), userData);
+
+      // Step 4: Send verification email
       await sendEmailVerification(user);
       setMessage('Verification email sent! Please check your inbox.');
 
       console.log('User signed up:', fullName, email, 'with role:', role);
 
-      // Step 4: Redirect to the login page after signup
+      // Step 5: Redirect to the login page after signup
       setTimeout(() => {
         navigate('/login'); // Redirect after a short delay
       }, 3000);
     } catch (err) {
-      // Step 5: Handle errors
+      // Step 6: Handle errors
       setError(err.message);
     }
   };

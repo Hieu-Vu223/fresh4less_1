@@ -20,6 +20,8 @@ function BrowseFoodOffers() {
 
     return () => unsubscribe();
   }, []);
+  console.log("Fetched offers:", foodOffers);
+
 
   // Function to add offer to cart
   const addToCart = (offer) => {

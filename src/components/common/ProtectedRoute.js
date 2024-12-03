@@ -1,30 +1,27 @@
-import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 
 const ProtectedRoute = ({ allowedRole }) => {
-  const { user, role, loading } = useAuth(); // Add `loading` from AuthContext
+  const { user, role, loading } = useAuth(); // Use context values
 
-  console.log("Current User in ProtectedRoute:", user);
-  console.log("Allowed Role:", allowedRole);
+  console.log('Current User in ProtectedRoute:', user); 
+  console.log('Role in ProtectedRoute:', role); 
+  console.log('Allowed Role:', allowedRole); 
 
-  // Show a loading state if data is still being fetched
   if (loading) {
-    return <div>Loading...</div>; // Replace with a spinner or skeleton screen
+    return <div>Loading...</div>; // Show loading screen while fetching data
   }
 
-  // Redirect to login if user is not authenticated
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" />; // Redirect to login if user is not authenticated
   }
 
-  // Redirect to home if the user's role doesn't match the allowed role
   if (role !== allowedRole) {
-    return <Navigate to="/" />;
+    return <Navigate to="/" />; // Redirect if the role does not match
   }
 
-  // Render child routes if the user has the correct role
-  return <Outlet />;
+  return <Outlet />; // Allow access to children if role matches
 };
 
 export default ProtectedRoute;

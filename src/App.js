@@ -21,6 +21,7 @@ import UserTable from './components/admin/UserTable'; // Manage users
 import MerchantVerificationForm from './components/admin/MerchantVerificationForm'; // Verify merchants
 import ListingsTable from './components/admin/ListingsTable'; // Manage listings
 
+
 function App() {
   useEffect(() => {
     // Service Worker registration logic here

@@ -13,8 +13,20 @@ function Login() {
 
   // Fetch user data (role and status) from Firestore based on user UID
   const fetchUserData = async (uid) => {
-    const userDoc = await getDoc(doc(db, 'users', uid));
-    return userDoc.exists() ? userDoc.data() : null;
+    try {
+      if (!uid) {
+        throw new Error('User ID is not available');
+      }
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      if (!userDoc.exists()) {
+        throw new Error('User data not found');
+      }
+      return userDoc.data();
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      setError('Failed to retrieve user data. Please try again later.');
+      return null;
+    }
   };
 
   // Map Firebase authentication errors to user-friendly messages
@@ -42,16 +54,17 @@ function Login() {
       // Step 2: Authenticate the user with email and password
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const uid = userCredential.user.uid;
+      console.log('User authenticated. UID:', uid);
 
       // Step 3: Fetch user data (role and status) from Firestore
       const userData = await fetchUserData(uid);
       if (!userData) {
-        setError('User data not found. Please contact support.');
         setLoading(false);
         return;
       }
 
       // Step 4: Check if the user is suspended (allow admins to log in)
+      console.log('User data:', userData);
       if (userData.status === 'suspended' && userData.role !== 'admin') {
         setError('Your account has been suspended. Please contact support.');
         setLoading(false);
@@ -61,15 +74,20 @@ function Login() {
       // Step 5: Redirect based on the user's role
       const { role } = userData;
       if (role === 'merchant') {
+        console.log('Redirecting to merchant-dashboard');
         navigate('/merchant-dashboard');
       } else if (role === 'customer') {
+        console.log('Redirecting to browse-food-offers');
         navigate('/browse-food-offers');
       } else if (role === 'admin') {
+        console.log('Redirecting to admin dashboard');
         navigate('/admin/dashboard');
       } else {
         setError('Role not found or invalid. Contact support.');
+        setLoading(false);
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError(mapFirebaseError(err));
       setLoading(false); // Stop loading if there's an error
     }
