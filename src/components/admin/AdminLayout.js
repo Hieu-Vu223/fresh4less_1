@@ -12,8 +12,8 @@ function AdminLayout() {
             <ul>
               <li><a href="/admin/dashboard">Dashboard</a></li>
               <li><a href="/admin/users">Manage Users</a></li>
-              <li><a href="/admin/merchants">Verify Merchants</a></li>
-              <li><a href="/admin/listings">Manage Listings</a></li>
+              {/* <li><a href="/admin/merchants">Verify Merchants</a></li> */}
+              <li><a href="/admin/listings">Manage Merchant Listings</a></li>
             </ul>
           </nav>
         </aside>

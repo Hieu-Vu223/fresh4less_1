@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
@@ -8,10 +8,50 @@ function ManageOffers() {
   const [loading, setLoading] = useState(true);  // General loading state for offers
   const [authLoading, setAuthLoading] = useState(true);  // Loading state for authentication
   const [merchantId, setMerchantId] = useState(null);  // State to store merchantId
+  const [editingOfferId, setEditingOfferId] = useState(null);  // Store the offer being edited
+  const [updatedOfferData, setUpdatedOfferData] = useState({});  // Store data for the offer being updated
   const auth = getAuth();
 
-  function handleUpdate(offerId, data) {
-    console.log("handleUpdate called", offerId, data)
+  // Handle updating offer data
+  function handleUpdate(offerId, updatedData) {
+    // Get the document reference for the offer
+    const offerRef = doc(db, 'foodOffers', offerId);
+    
+    // Update the document with the new data
+    updateDoc(offerRef, updatedData)
+      .then(() => {
+        console.log("Offer updated successfully:", offerId);
+        setEditingOfferId(null);  // Reset the editing state after update
+      })
+      .catch((error) => {
+        console.error("Error updating offer:", error);
+      });
+  }
+
+  // Handle deleting offer
+  function handleDelete(offerId) {
+    // Get the document reference for the offer to be deleted
+    const offerRef = doc(db, 'foodOffers', offerId);
+
+    // Delete the document from Firestore
+    deleteDoc(offerRef)
+      .then(() => {
+        console.log("Offer deleted successfully:", offerId);
+        // Optionally, you can remove the deleted offer from the local state
+        setOffers(offers.filter((offer) => offer.id !== offerId));
+      })
+      .catch((error) => {
+        console.error("Error deleting offer:", error);
+      });
+  }
+
+  // Handle changes for the updated offer fields
+  function handleFieldChange(e, field) {
+    const value = e.target.value;
+    setUpdatedOfferData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
   }
 
   // Handle authentication state change
@@ -72,43 +112,56 @@ function ManageOffers() {
       {offers.length > 0 ? (
         offers.map((offer) => (
           <div key={offer.id} className="offer-item">
-            <input
-              type="text"
-              value={offer.name}
-              onChange={(e) => handleUpdate(offer.id, { name: e.target.value })}
-              placeholder="Offer Name"
-            />
-            <input
-              type="number"
-              value={offer.price}
-              onChange={(e) => handleUpdate(offer.id, { price: Math.max(0.01, parseFloat(e.target.value)) })}
-              placeholder="Price"
-              min="0.01"
-              step="0.01"
-            />
-            <input
-              type="number"
-              value={offer.distance}
-              onChange={(e) => handleUpdate(offer.id, { distance: Math.max(0.1, parseFloat(e.target.value)) })}
-              placeholder="Distance"
-              min="0.1"
-              step="0.1"
-            />
-            <input
-              type="number"
-              value={offer.quantity}
-              onChange={(e) => handleUpdate(offer.id, { quantity: Math.max(1, parseInt(e.target.value)) })}
-              placeholder="Quantity"
-              min="1"
-            />
-            <select
-              value={offer.status}
-              onChange={(e) => handleUpdate(offer.id, { status: e.target.value })}
-            >
-              <option value="available">Available</option>
-              <option value="unavailable">Unavailable</option>
-            </select>
-            <button onClick={() => handleDelete(offer.id)}>Delete</button>
+            {editingOfferId === offer.id ? (
+              <div>
+                <input
+                  type="text"
+                  value={updatedOfferData.name || offer.name}
+                  onChange={(e) => handleFieldChange(e, 'name')}
+                  placeholder="Offer Name"
+                />
+                <input
+                  type="number"
+                  value={updatedOfferData.price || offer.price}
+                  onChange={(e) => handleFieldChange(e, 'price')}
+                  placeholder="Price"
+                  min="0.01"
+                  step="0.01"
+                />
+                <input
+                  type="number"
+                  value={updatedOfferData.distance || offer.distance}
+                  onChange={(e) => handleFieldChange(e, 'distance')}
+                  placeholder="Distance"
+                  min="0.1"
+                  step="0.1"
+                />
+                <input
+                  type="number"
+                  value={updatedOfferData.quantity || offer.quantity}
+                  onChange={(e) => handleFieldChange(e, 'quantity')}
+                  placeholder="Quantity"
+                  min="1"
+                />
+                <select
+                  value={updatedOfferData.status || offer.status}
+                  onChange={(e) => handleFieldChange(e, 'status')}
+                >
+                  <option value="available">Available</option>
+                  <option value="unavailable">Unavailable</option>
+                </select>
+                <button onClick={() => handleUpdate(offer.id, updatedOfferData)}>Update</button>
+              </div>
+            ) : (
+              <div>
+                <p>{offer.name}</p>
+                <p>{offer.price} CAD</p>
+                <p>{offer.description}</p>
+                <p>{offer.status}</p>
+                <button onClick={() => setEditingOfferId(offer.id)}>Edit</button>
+                <button onClick={() => handleDelete(offer.id)}>Delete</button>
+              </div>
+            )}
           </div>
         ))
       ) : (
